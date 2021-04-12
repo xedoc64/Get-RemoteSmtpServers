@@ -2,12 +2,12 @@
     .SYNOPSIS
     Fetch all remote SMTP servers from Exchange receive connector logs, establishing a TLS connection
    
-    Thomas Stensitzki
+    Thomas Stensitzki, Torsten Schlopsnies
 
     THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
     RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 	
-    Version 1.0, 2021-06-04
+    Version 1.1, 2021-06-21
 
     Ideas, comments and suggestions to support@granikos.eu 
  
@@ -27,7 +27,8 @@
 
     Revision History 
     -------------------------------------------------------------------------------- 
-    1.0     Initial community release 
+    1.0     Initial community release
+    1.1     Redesigned the search. Script acts now faster.
 	
     .PARAMETER Servers
     List of Exchange servers, modern and legacy Exchange servers cannot be mixed
