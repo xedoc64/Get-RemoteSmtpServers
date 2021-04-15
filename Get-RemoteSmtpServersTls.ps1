@@ -55,9 +55,9 @@
 param(
   $Servers = @('localhost'),
   [switch]$Backend,
-  [bool]$ToCsvPerServer = $true,
+  [switch]$ToCsvPerServer,
   [int]$AddDays = -10,
-  [bool]$ResolveNames = $true
+  [switch]$ResolveNames
 )
 
 $CsvFileName = ('RemoteSMTPServersTls-%SERVER%-%ROLE%-%TLS%-{0}.csv' -f ((Get-Date).ToString('s').Replace(':','-')))
