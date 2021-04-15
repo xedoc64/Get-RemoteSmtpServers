@@ -55,9 +55,9 @@
 param(
   $Servers = @('localhost'),
   [switch]$Backend,
-  [switch]$ToCsvPerServer,
+  [bool]$ToCsvPerServer = $true,
   [int]$AddDays = -10,
-  [switch]$ResolveNames
+  [bool]$ResolveNames = $true
 )
 
 $CsvFileName = ('RemoteSMTPServersTls-%SERVER%-%ROLE%-%TLS%-{0}.csv' -f ((Get-Date).ToString('s').Replace(':','-')))
@@ -91,13 +91,17 @@ function Write-RemoteServers {
           for($i=0; $i -lt $ResultsToExport.$Server.$Tls.Count; $i++) {
             if ($ResolveNames) {
               # Resolving the ip
-              $HostName = Resolve-DnsName -Name $ResultsToExport.$Server.$Tls[$i] -ErrorAction Ignore | Select-Object -ExpandProperty NameHost -ErrorAction Ignore
-              if ($null -ne $HostName) {
-                $ResultsToExport.$Server.$Tls[$i] = $HostName
+              $ErrorActionPreference = "SilentlyContinue"
+              $HostName = [System.Net.Dns]::GetHostByAddress($ResultsToExport.$Server.$Tls[$i])
+              if ($HostName) {
+                $RemoteServersOutput.Add((New-Object -TypeName "psobject" -Property @{"IP Address"="$($ResultsToExport.$Server.$Tls[$i])";"Remote server"="$($HostName.HostName)"}))
               }
-            }
-            # Add the result to a generic list for export
-            $RemoteServersOutput.Add((New-Object -TypeName "psobject" -Property @{"Remote server"="$($ResultsToExport.$Server.$Tls[$i])"})) 
+              else
+              {
+                $RemoteServersOutput.Add((New-Object -TypeName "psobject" -Property @{"IP Address"="$($ResultsToExport.$Server.$Tls[$i])";"Remote server"=""}))    
+              }
+              $HostName = $null
+            }            
           }
           if($ToCsvPerServer) {
             # save remote servers list as csv
@@ -145,7 +149,7 @@ foreach($Server in $Servers) {
   Write-Verbose -Message ('Working on Server {0} | {1}' -f $Server, $Path)
 
   # fetching log files requires an account w/ administrative access to the target server
-  $LogFiles = Get-ChildItem -Path $Path -File | Where-Object {$_.LastWriteTime -gt (Get-Date).AddDays($AddDays)}
+  $LogFiles = Get-ChildItem -Path $Path -File | Where-Object {$_.LastWriteTime -gt (Get-Date).AddDays($AddDays)} | Select-Object -First 3
   
 
   $LogFileCount = ($LogFiles | Measure-Object).Count
